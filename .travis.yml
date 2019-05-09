@@ -22,6 +22,10 @@ git:
 # in vendor/
 install: true
 
+before_install:
+  # gox simplifies building for multiple architectures
+  - go get github.com/mitchellh/gox
+
 # Don't email me the results of the test runs.
 # notifications:
 #   email: false
@@ -38,3 +42,13 @@ install: true
 # script:
 #   - golangci-lint run       # run a bunch of code checkers/linters in parallel
 #   - go test -v -race ./...  # Run all the tests with the race detector enabled
+
+script:
+  - gox -os="windows" -arch="amd64" -ldflags "-X main.Rev=`git rev-parse --short HEAD`" -verbose ./...;
+
+deploy:
+  provider: releases
+  file:
+  - cncnet-map-loader.exe
+  skip_cleanup: true
+  draft: true
