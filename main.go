@@ -3,7 +3,7 @@ package main
 import (
 	"archive/zip"
 	"fmt"
-	"github.com/cncnet-map-loader/brut"
+	brut "github.com/dieyushi/golang-brutedict"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -16,13 +16,15 @@ import (
 )
 
 const abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const folderMaps = "yr_maps"
+const folderTmp = "yr_tmp"
 
 func main() {
 
-	os.MkdirAll("maps", 0777)
-	os.MkdirAll("tmp", 0777)
-	os.RemoveAll("maps/*")
-	os.RemoveAll("tmp/*")
+	os.RemoveAll(folderMaps)
+	os.RemoveAll(folderTmp)
+	os.MkdirAll(folderMaps, 0777)
+	os.MkdirAll(folderTmp, 0777)
 
 	bd := brut.New(false, true, false, 3, 3)
 	defer bd.Close()
@@ -55,6 +57,13 @@ func main() {
 
 		for _, rs := range res {
 
+			fileExist := strings.Replace(rs[1], ".zip", ".map", -1)
+			fileExist = path.Base(fileExist)
+			file, _ := os.Stat(folderMaps + "/" + fileExist)
+			if file != nil {
+				continue
+			}
+
 			url := "http://mapdb.cncnet.org" + rs[1]
 			fmt.Println("MAP " + url)
 
@@ -63,7 +72,7 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
-			fileZip := "tmp/" + path.Base(url)
+			fileZip := folderTmp + "/" + path.Base(url)
 			out, err := os.Create(fileZip)
 			if err != nil {
 				panic(err)
@@ -75,7 +84,7 @@ func main() {
 			out.Close()
 			resp.Body.Close()
 
-			files, err := Unzip(fileZip, "maps")
+			files, err := Unzip(fileZip, folderMaps)
 			if err != nil {
 				panic(err)
 			}

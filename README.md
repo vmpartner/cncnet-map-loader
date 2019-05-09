@@ -1,5 +1,5 @@
-# CnCNet map loader for RedAlert2
-This app download all maps RedAlert2 from CnCNet database.
+# CnCNet map loader for RedAlert2 YR
+This app download all maps RedAlert2 YR from CnCNet database.
 
 
 ### Download
