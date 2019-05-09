@@ -3,6 +3,7 @@ package main
 import (
 	"archive/zip"
 	"fmt"
+	"github.com/cncnet-map-loader/brut"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -10,53 +11,85 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 )
+
+const abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 func main() {
 
 	os.MkdirAll("maps", 0777)
 	os.MkdirAll("tmp", 0777)
+	os.RemoveAll("maps/*")
+	os.RemoveAll("tmp/*")
 
-	resp, err := http.Get("http://mapdb.cncnet.org/search.php?game=ra&age=0&search=defen")
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
+	bd := brut.New(false, true, false, 3, 3)
+	defer bd.Close()
+	for {
 
-	body, err := ioutil.ReadAll(resp.Body)
-	html := string(body)
+		id := bd.Id()
+		fmt.Println(id)
+		if id == "zzz" {
+			break
+		}
 
-	re, err := regexp.Compile(`<a href="\.(.*?)"`)
-	if err != nil {
-		panic(err)
-	}
-	res := re.FindAllStringSubmatch(html, -1)
-
-	for _, rs := range res {
-		url := "http://mapdb.cncnet.org" + rs[1]
-		fmt.Printf("%+v\n", url)
-
-		// Get the data
-		resp, err := http.Get(url)
+		urlSearch := "http://mapdb.cncnet.org/search.php?game=yr&age=0&search=" + id
+		fmt.Println("SEARCH " + urlSearch)
+		resp, err := http.Get(urlSearch)
 		if err != nil {
 			panic(err)
 		}
-		fileZip := "tmp/" + path.Base(url)
-		out, err := os.Create(fileZip)
-		if err != nil {
-			panic(err)
-		}
-		_, err = io.Copy(out, resp.Body)
-		if err != nil {
-			panic(err)
-		}
-		out.Close()
+
+		body, err := ioutil.ReadAll(resp.Body)
 		resp.Body.Close()
+		html := string(body)
 
-		Unzip(fileZip, "maps")
+		re, err := regexp.Compile(`<a href="\.(.*?)"`)
+		if err != nil {
+			panic(err)
+		}
+		res := re.FindAllStringSubmatch(html, -1)
 
-		os.RemoveAll(fileZip)
+		fmt.Println("FOUND " + strconv.Itoa(len(res)))
+
+		for _, rs := range res {
+
+			url := "http://mapdb.cncnet.org" + rs[1]
+			fmt.Println("MAP " + url)
+
+			// Get the data
+			resp, err := http.Get(url)
+			if err != nil {
+				panic(err)
+			}
+			fileZip := "tmp/" + path.Base(url)
+			out, err := os.Create(fileZip)
+			if err != nil {
+				panic(err)
+			}
+			_, err = io.Copy(out, resp.Body)
+			if err != nil {
+				panic(err)
+			}
+			out.Close()
+			resp.Body.Close()
+
+			files, err := Unzip(fileZip, "maps")
+			if err != nil {
+				panic(err)
+			}
+
+			for _, file := range files {
+				fileNew := strings.Replace(file, ".mpr", ".map", -1)
+				err := os.Rename(file, fileNew)
+				if err != nil {
+					panic(err)
+				}
+			}
+
+			os.RemoveAll(fileZip)
+		}
 	}
 }
 
