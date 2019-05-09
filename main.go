@@ -14,6 +14,10 @@ import (
 )
 
 func main() {
+
+	os.MkdirAll("maps", 0777)
+	os.MkdirAll("tmp", 0777)
+
 	resp, err := http.Get("http://mapdb.cncnet.org/search.php?game=ra&age=0&search=defen")
 	if err != nil {
 		panic(err)
