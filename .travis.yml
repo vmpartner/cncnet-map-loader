@@ -48,6 +48,7 @@ script:
 
 deploy:
   provider: releases
+  github_token: $GITHUB_TOKEN
   file:
   - cncnet-map-loader.exe
   skip_cleanup: true
