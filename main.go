@@ -15,13 +15,11 @@ import (
 	"strings"
 )
 
-const abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const folderMaps = "yr_maps"
 const folderTmp = "yr_tmp"
 
 func main() {
 
-	os.RemoveAll(folderMaps)
 	os.RemoveAll(folderTmp)
 	os.MkdirAll(folderMaps, 0777)
 	os.MkdirAll(folderTmp, 0777)
