@@ -44,12 +44,15 @@ before_install:
 #   - go test -v -race ./...  # Run all the tests with the race detector enabled
 
 script:
-  - gox -os="windows" -arch="amd64" -ldflags "-X main.Rev=`git rev-parse --short HEAD`" -verbose ./...;
+  - gox -osarch="windows/amd64" -ldflags "-X main.Rev=`git rev-parse --short HEAD`" -verbose ./...
+  - gox -osarch="windows/386" -ldflags "-X main.Rev=`git rev-parse --short HEAD`" -verbose ./...
 
 deploy:
   provider: releases
   api_key: $GITHUB_TOKEN
   file:
-  - cncnet-map-loader.exe
+  - cncnet-map-loader_windows_amd64.exe
+  - cncnet-map-loader_windows_386.exe
   skip_cleanup: true
-  draft: true
+  on:
+    tags: true
