@@ -1,0 +1,6 @@
+/.idea
+*.exe
+*.csv
+*.txt
+/maps
+/tmp
