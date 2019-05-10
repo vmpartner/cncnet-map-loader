@@ -18,3 +18,6 @@ Just copy all maps to RedAlert2 YR game folder in Maps/Custom/
 
 ### Thanks
 If app was helpful for you, please add star, thank you!
+
+### Update 1
+Game will not start if there is too much map files...
