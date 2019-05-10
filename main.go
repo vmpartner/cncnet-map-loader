@@ -44,6 +44,7 @@ func main() {
 		body, err := ioutil.ReadAll(resp.Body)
 		resp.Body.Close()
 		html := string(body)
+		html = strings.ToLower(html)
 
 		re, err := regexp.Compile(`<a href="\.(.*?)"`)
 		if err != nil {
