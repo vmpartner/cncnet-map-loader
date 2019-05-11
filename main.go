@@ -30,7 +30,7 @@ func main() {
 
 		id := bd.Id()
 		fmt.Println(id)
-		if id == "zzz" {
+		if len(id) != 3 {
 			break
 		}
 
@@ -46,7 +46,7 @@ func main() {
 		html := string(body)
 		html = strings.ToLower(html)
 
-		re, err := regexp.Compile(`<a href="\.(.*?)"`)
+		re, err := regexp.Compile(`<a href="\.(.*?)">\s?(.*?)\s?<`)
 		if err != nil {
 			panic(err)
 		}
@@ -56,9 +56,9 @@ func main() {
 
 		for _, rs := range res {
 
-			fileExist := strings.Replace(rs[1], ".zip", ".map", -1)
-			fileExist = path.Base(fileExist)
-			file, _ := os.Stat(folderMaps + "/" + fileExist)
+			name := MakeCode(rs[2])
+			fileNew := folderMaps + "/" + name + ".map"
+			file, _ := os.Stat(fileNew)
 			if file != nil {
 				continue
 			}
@@ -89,14 +89,19 @@ func main() {
 			}
 
 			for _, file := range files {
-				fileNew := strings.Replace(file, ".mpr", ".map", -1)
+				fileNew := folderMaps + "/" + name + path.Ext(file)
 				err := os.Rename(file, fileNew)
 				if err != nil {
 					panic(err)
 				}
+				break
 			}
 
 			os.RemoveAll(fileZip)
+		}
+
+		if id == "zzz" {
+			break
 		}
 	}
 }
@@ -155,4 +160,18 @@ func Unzip(src string, dest string) ([]string, error) {
 		}
 	}
 	return filenames, nil
+}
+
+func MakeCode(text string) string {
+
+	text = strings.ToLower(text)
+	var re = regexp.MustCompile(`[^a-zа-я0-9-\s]+`)
+	s := re.ReplaceAllString(text, "")
+	var re2 = regexp.MustCompile(`\s{2,}`)
+	s2 := re2.ReplaceAllString(s, " ")
+	var re3 = regexp.MustCompile(`-{2,}`)
+	s3 := re3.ReplaceAllString(s2, "-")
+	s4 := strings.Replace(s3, " ", "-", -1)
+
+	return s4
 }
