@@ -172,6 +172,7 @@ func MakeCode(text string) string {
 	var re3 = regexp.MustCompile(`-{2,}`)
 	s3 := re3.ReplaceAllString(s2, "-")
 	s4 := strings.Replace(s3, " ", "-", -1)
+	s4 = strings.TrimSpace(s4)
 
 	return s4
 }
