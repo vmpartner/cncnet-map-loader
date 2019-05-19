@@ -42,7 +42,6 @@ func main() {
 
 		urlSearch := "http://mapdb.cncnet.org/search.php?game=" + *cfgGame + "&age=0&search=" + id
 		fmt.Println("SEARCH " + urlSearch)
-		fmt.Println(*cfgTimeout)
 		time.Sleep(time.Duration(*cfgTimeout) * time.Millisecond)
 		resp, err := http.Get(urlSearch)
 		if err != nil {
