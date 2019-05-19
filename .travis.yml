@@ -54,6 +54,7 @@ deploy:
   file:
   - cncnet-map-loader_windows_amd64.exe
   - cncnet-map-loader_windows_386.exe
+  - cncnet-map-loader_linux_amd64
   skip_cleanup: true
   on:
     tags: true
