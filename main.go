@@ -2,6 +2,7 @@ package main
 
 import (
 	"archive/zip"
+	"flag"
 	"fmt"
 	brut "github.com/dieyushi/golang-brutedict"
 	"io"
@@ -13,12 +14,17 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const folderMaps = "yr_maps"
 const folderTmp = "yr_tmp"
 
 func main() {
+
+	cfgGame := flag.String("game", "yr", "Set game search")
+	cfgTimeout := flag.Int("timeout", 500, "Set timeout between request to cncnet server in milliseconds")
+	flag.Parse()
 
 	os.RemoveAll(folderTmp)
 	os.MkdirAll(folderMaps, 0777)
@@ -34,8 +40,10 @@ func main() {
 			break
 		}
 
-		urlSearch := "http://mapdb.cncnet.org/search.php?game=yr&age=0&search=" + id
+		urlSearch := "http://mapdb.cncnet.org/search.php?game=" + *cfgGame + "&age=0&search=" + id
 		fmt.Println("SEARCH " + urlSearch)
+		fmt.Println(*cfgTimeout)
+		time.Sleep(time.Duration(*cfgTimeout) * time.Millisecond)
 		resp, err := http.Get(urlSearch)
 		if err != nil {
 			panic(err)
@@ -51,6 +59,12 @@ func main() {
 			panic(err)
 		}
 		res := re.FindAllStringSubmatch(html, -1)
+		if len(res) <= 0 {
+			if !strings.Contains(html, "you must be inside of a game room") {
+				fmt.Printf("%+v\n", html)
+				panic("No links found")
+			}
+		}
 
 		fmt.Println("FOUND " + strconv.Itoa(len(res)))
 
@@ -60,6 +74,7 @@ func main() {
 			fileNew := folderMaps + "/" + name + ".map"
 			file, _ := os.Stat(fileNew)
 			if file != nil {
+				fmt.Println("File exist: " + fileNew)
 				continue
 			}
 
@@ -67,6 +82,7 @@ func main() {
 			fmt.Println("MAP " + url)
 
 			// Get the data
+			time.Sleep(time.Duration(*cfgTimeout) * time.Millisecond)
 			resp, err := http.Get(url)
 			if err != nil {
 				panic(err)
