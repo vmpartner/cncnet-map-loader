@@ -40,6 +40,8 @@ func main() {
 			break
 		}
 
+		start:
+
 		urlSearch := "http://mapdb.cncnet.org/search.php?game=" + *cfgGame + "&age=0&search=" + id
 		fmt.Println("SEARCH " + urlSearch)
 		time.Sleep(time.Duration(*cfgTimeout) * time.Millisecond)
@@ -59,6 +61,10 @@ func main() {
 		}
 		res := re.FindAllStringSubmatch(html, -1)
 		if len(res) <= 0 {
+			if strings.Contains(html, "too many requests") {
+				time.Sleep(time.Minute)
+				goto start
+			}
 			if !strings.Contains(html, "you must be inside of a game room") {
 				fmt.Printf("%+v\n", html)
 				panic("No links found")
