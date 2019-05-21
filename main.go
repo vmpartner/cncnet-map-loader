@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"flag"
 	"fmt"
+	"github.com/apex/log"
 	brut "github.com/dieyushi/golang-brutedict"
 	"io"
 	"io/ioutil"
@@ -40,7 +41,7 @@ func main() {
 			break
 		}
 
-		start:
+	start:
 
 		urlSearch := "http://mapdb.cncnet.org/search.php?game=" + *cfgGame + "&age=0&search=" + id
 		fmt.Println("SEARCH " + urlSearch)
@@ -106,7 +107,8 @@ func main() {
 
 			files, err := Unzip(fileZip, folderMaps)
 			if err != nil {
-				panic(err)
+				log.Error(err.Error())
+				continue
 			}
 
 			for _, file := range files {
